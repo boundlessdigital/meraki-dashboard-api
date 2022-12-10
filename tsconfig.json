@@ -1,0 +1,42 @@
+// https://www.lucaspaganini.com/academy/20-typescript-compiler-options-for-your-tsconfig-json
+
+{
+    "$schema": "https://json.schemastore.org/tsconfig",
+    "include": [
+        "src/**/*.ts"
+, "src/index.js"    ],
+    "exclude": [
+        "node_modules"
+    ],
+    "compilerOptions": {
+        "outDir": "lib",
+        "lib": [
+            "ES2022",
+            "DOM"
+        ],
+        "target": "ES2019",
+        "allowUnreachableCode": false,
+        "declaration": true,
+        "declarationDir": "./lib/types",
+        "declarationMap": true,
+        "esModuleInterop": true,
+        "exactOptionalPropertyTypes": true,
+        "experimentalDecorators": true,
+        "forceConsistentCasingInFileNames": true,
+        "inlineSourceMap": true,
+        "inlineSources": true,
+        "jsx": "react-jsx",
+        "module": "es2022",
+        "moduleResolution": "node",
+        "noErrorTruncation": true,
+        "noFallthroughCasesInSwitch": true,
+        "noImplicitOverride": true,
+        "noImplicitReturns": true,
+        "noUncheckedIndexedAccess": true,
+        "noUnusedLocals": true,
+        "noUnusedParameters": true,
+        "removeComments": true,
+        "resolveJsonModule": true,
+        "strict": true,
+    }
+}
