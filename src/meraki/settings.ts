@@ -1,1 +1,0 @@
-export const DEFAULT_MERAKI_TIMEOUT = 60 * 1000

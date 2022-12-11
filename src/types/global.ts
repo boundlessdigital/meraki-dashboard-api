@@ -1,4 +1,5 @@
 // export {}
+declare module 'to-json-schema'
 
 // declare global {
 //     // namespace NodeJS {

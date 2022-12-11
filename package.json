@@ -6,6 +6,7 @@
     "scripts": {
         "build": "tsc",
         "clean": "rm -rf lib",
+        "build:lib": "",
         "build:types": "rm -rf ./lib/types/*; mkdir -p lib/types; cp -r types/* lib/types/; echo 'Done'",
         "watch": "tsc --watch",
         "prettier-format": "prettier 'src/**/*.ts' --write",
@@ -25,6 +26,7 @@
         "eslint-config-prettier": "^8.5.0",
         "eslint-plugin-prettier": "^4.2.1",
         "jest": "^29.3.1",
+        "openapi-types": "^12.1.0",
         "prettier": "2.8.1",
         "ts-config": "^20.10.0",
         "ts-jest": "^29.0.3",

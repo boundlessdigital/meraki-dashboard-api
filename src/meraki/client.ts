@@ -1,5 +1,5 @@
 import axios, { Axios, AxiosResponse } from 'axios'
-import { DEFAULT_MERAKI_TIMEOUT } from './settings.js'
+import { DEFAULT_MERAKI_TIMEOUT } from '../settings.js'
 import { IClientParams } from '../types/global'
 
 export interface IClientOperation {
