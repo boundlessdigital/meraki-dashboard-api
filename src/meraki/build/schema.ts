@@ -1,8 +1,6 @@
 import toJsonSchema from 'to-json-schema'
-import upperFirst from 'lodash/upperFirst'
-import keys from 'lodash/keys'
-import find from 'lodash/find'
-import { MERAKI_API_SCHEMA_DIR } from '../../settings'
+import _ from 'lodash'
+import { MERAKI_API_SCHEMA_DIR } from '../../settings.js'
 import { BuildException, write_file, has_own_property } from '../utils.js'
 
 
@@ -23,6 +21,7 @@ export interface IOperationDefinition {
 interface ISchemaCandidate {
     schema?: {
         types: string
+        title: string
     }
     description: string,
     examples: {
@@ -51,8 +50,8 @@ function schema_from_example(response: ISchemaCandidate) {
 
 async function generate_response_schema(definition: IOperationDefinition) {
     const successful_response_codes = ['200', '201', '202', '204']
-    const success_response_code = find(
-        keys(definition.responses),
+    const success_response_code = _.find(
+        _.keys(definition.responses),
         (key: string) => successful_response_codes.includes(key)
     )
 
@@ -69,16 +68,18 @@ async function generate_response_schema(definition: IOperationDefinition) {
         schema = schema_from_example(success)
     } else if (success.description) {
         schema = toJsonSchema(success)
-    } else {
-        throw new BuildException('No success response', definition)
     }
 
-    schema.title = `I${upperFirst(definition.operationId)}Response`
-    return schema
+    if (schema) {
+        schema.title = `I${_.upperFirst(definition.operationId)}Response`
+        return schema
+    }
+
+    throw new BuildException('No success response', definition)
 }
 
 
-async function write_schema_file(name: string, schema: string) {
+async function write_schema_file(name: string, schema: toJsonSchema.JSONSchema3or4 ) {
     const filename = `${name}.schema.json`
     const content = JSON.stringify(schema, null, 4)
     await write_file(MERAKI_API_SCHEMA_DIR, filename, content)
@@ -86,7 +87,7 @@ async function write_schema_file(name: string, schema: string) {
 
 
 export async function create_schema(definition: IOperationDefinition) {
-    const schema = await generate_response_schema(definition)
+    const schema = await generate_response_schema(definition) as toJsonSchema.JSONSchema3or4 
     await write_schema_file(definition.operationId, schema)
     return schema
 }
