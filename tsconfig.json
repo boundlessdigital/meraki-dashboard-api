@@ -1,10 +1,11 @@
-// https://www.lucaspaganini.com/academy/20-typescript-compiler-options-for-your-tsconfig-json
-
 {
     "$schema": "https://json.schemastore.org/tsconfig",
     "include": [
-        "src/**/*.ts"
-, "src/index.js"    ],
+        "src/**/*.ts",
+        "src/index.js",
+        "src/meraki/update_api",
+        "types/**/*.ts"
+    ],
     "exclude": [
         "node_modules"
     ],
@@ -14,10 +15,14 @@
             "ES2022",
             "DOM"
         ],
+        "typeRoots": [
+            "node_modules/@types",
+            // "types"
+        ],
         "target": "ES2019",
         "allowUnreachableCode": false,
         "declaration": true,
-        "declarationDir": "./lib/types",
+        "declarationDir": "./lib",
         "declarationMap": true,
         "esModuleInterop": true,
         "exactOptionalPropertyTypes": true,

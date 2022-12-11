@@ -1,0 +1,177 @@
+import fs from 'fs'
+import { mkdir } from 'node:fs/promises'
+import path from 'path'
+import { compile } from 'json-schema-to-typescript'
+import toJsonSchema from 'to-json-schema'
+import upperFirst from 'lodash/upperFirst'
+import keys from 'lodash/keys'
+import find from 'lodash/find'
+
+const MERAKI_API_TYPES_DIR = 'lib/meraki/types'
+const MERAKI_API_SCHEMA_DIR = 'lib/meraki/schema'
+const MERAKI_API_SPEC_FILE_PATH = 'lib/meraki/spec.json'
+const MERAKI_API_SPEC_URL = 'https://api.meraki.com/api/v1/openapiSpec'
+
+type HttpMethod = 'get' | 'delete' | 'options' | 'head' | 'put' | 'post'
+interface IOperationDefinition {
+    path: string
+    method: HttpMethod
+    description: string
+    operationId: string
+    responses: object
+    summary: string
+    tags: string
+}
+
+function BuildException(message: string, payload: object) {
+    this.message = message
+    this.payload = payload
+}
+
+function debug_log(message: string) {
+    process.stdout.write(JSON.stringify(message, null, 4))
+}
+
+function titlelize(message: string) {
+    return upperFirst(message)
+}
+
+function has_schema_definition(response) {
+    const schema: object = response.schema
+
+    if (schema?.types === 'object' && schema.hasOwnProperty('properties')) {
+        return true
+    }
+
+    return false
+}
+
+function has_example(response: object) {
+    return response.hasOwnProperty('examples')
+}
+
+function schema_from_example(response) {
+    const example = response.examples['application/json']
+    return toJsonSchema(example)
+}
+
+async function generate_response_schema(structure) {
+    const successful_response_codes = ['200', '201', '202', '204']
+    const success_response_code = find(
+        keys(structure.responses),
+        (key: string) => successful_response_codes.includes(key)
+    )
+
+    if (!success_response_code) {
+        throw new BuildException('No success response', structure)
+    }
+
+    const success = structure.responses[success_response_code]
+
+    let schema
+    if (has_schema_definition(success)) {
+        schema = success.schema
+    } else if (has_example(success)) {
+        schema = schema_from_example(success)
+    } else if (success.description) {
+        schema = toJsonSchema(success)
+    } else {
+        throw new BuildException('No success response', structure)
+    }
+
+    schema.title = `I${titlelize(structure.operationId)}Response`
+    return schema
+}
+
+async function write_file(dir: string, filename: string, content: string) {
+    const output_file = path.join(dir, filename)
+    fs.writeFileSync(output_file, content)
+}
+
+async function write_schema_file(name: string, schema: string) {
+    const filename = `${name}.schema.json`
+    const content = JSON.stringify(schema, null, 4)
+    await write_file(MERAKI_API_SCHEMA_DIR, filename, content)
+}
+
+async function write_type_definition(name: string, content: string) {
+    const filename = `${name}.d.ts`
+    await write_file(MERAKI_API_TYPES_DIR, filename, content)
+}
+
+/**
+ * https://www.npmjs.com/package/json-schema-to-typescript
+ *
+ * @param schema
+ * @param operationId
+ * @returns
+ */
+async function generate_typedef(schema: object, operationId: string) {
+    const type_def = await compile(schema, schema['title'])
+    return type_def
+}
+
+async function build_library_asset(definition: IOperationDefinition) {
+    const name = definition.operationId
+    const schema = await generate_response_schema(definition)
+    const type_def = await generate_typedef(schema, name)
+
+    await write_schema_file(name, schema)
+    await write_type_definition(schema.title, type_def)
+}
+
+async function initialize() {
+    let spec
+
+    if (!fs.existsSync(MERAKI_API_SPEC_FILE_PATH)) {
+        await mkdir(path.resolve(MERAKI_API_SCHEMA_DIR), { recursive: true })
+        await mkdir(path.resolve(MERAKI_API_TYPES_DIR), { recursive: true })
+        spec = await fetch_latest_api_spec()
+    } else {
+        spec = fs.readFileSync(MERAKI_API_SPEC_FILE_PATH)
+    }
+
+    return spec
+}
+
+async function fetch_latest_api_spec() {
+    const response = await fetch(MERAKI_API_SPEC_URL)
+    const spec = await response.json()
+    fs.writeFileSync(MERAKI_API_SPEC_FILE_PATH, JSON.stringify(spec, null, 4))
+
+    return spec
+}
+
+function build_endpoints_list(spec: object) {
+    const endpoint_list: IOperationDefinition[] = []
+
+    for (const [path, endpoint] of Object.entries(spec.paths)) {
+        // @ts-ignore
+        for (const [method, definition] of Object.entries(endpoint)) {
+            // @ts-ignore
+            const operationDefinition: IOperationDefinition = {
+                path,
+                method: method as HttpMethod,
+                ...(definition as object)
+            }
+
+            endpoint_list.push(operationDefinition)
+        }
+    }
+
+    return endpoint_list
+}
+
+;(async () => {
+    try {
+        const spec = await initialize()
+        const endpoint_list: IOperationDefinition[] = build_endpoints_list(spec)
+
+        for (const endpoint of endpoint_list) {
+            await build_library_asset(endpoint)
+        }
+    } catch (error as BuildException) {
+        console.log(error.message)
+        debug_log(error.payload)
+    }
+})()

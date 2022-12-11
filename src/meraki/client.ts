@@ -1,3 +1,7 @@
+import axios, { Axios } from 'axios'
+import { DEFAULT_MERAKI_TIMEOUT } from './settings.js'
+import { IClientParams } from '../types/global'
+
 export class Client {
     api_key: string
     host: string
@@ -20,4 +24,36 @@ export class Client {
 
         // this.client.interceptors.response.use(null, retry(this.client))
     }
+
+    getOrganizations() {
+        return this.client.request({
+            url: '/organizations',
+            method: 'get'
+        })
+    }
 }
+
+// function add_meraki_methods() {
+//     // const method = 'get_organizations'
+//     Client.prototype.get_organizations = function () {
+//         console.log(arguments.callee.caller.name)
+//     }
+// }
+
+// export const build_client = () => {
+//     let operations: OperationList = {}
+
+//     for (const [path, endpoint] of Object.entries(spec.paths)) {
+//         for (const [method, operationDescription] of Object.entries(endpoint)) {
+//             let operationId: string = operationDescription.operationId
+//             let operation = {
+//                 method: method.toUpperCase(),
+//                 path: path,
+//                 parameters: operationDescription.parameters,
+//             }
+//             operations[operationId] = operation
+//         }
+//     }
+
+//     return operations
+// })()
