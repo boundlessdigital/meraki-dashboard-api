@@ -1,4 +1,8 @@
-import { compile } from 'json-schema-to-typescript'
+import toJsonSchema from 'to-json-schema'
+import { compile, JSONSchema } from 'json-schema-to-typescript'
+import { write_file } from '../utils.js'
+import { MERAKI_API_TYPES_DIR } from '../../settings.js'
+import _ from 'lodash'
 
 
 
@@ -8,16 +12,17 @@ async function write_type_definition(name: string, content: string) {
 }
 
 
-async function generate_typedef(schema: object, operationId: string) {
-    const type_def = await compile(schema, schema['title'])
+async function generate_typedef(schema: toJsonSchema.JSONSchema3or4) {
+    const type_def = await compile(schema as JSONSchema, schema['title'] as string)
     return type_def
 }
 
-async function build_library_asset(definition: IOperationDefinition) {
-    const schema = await generate_response_schema(definition)
-    const type_def = await generate_typedef(schema, name)
 
-    await write_type_definition(schema.title, type_def)
+
+export async function create_types(schemas: toJsonSchema.JSONSchema3or4[]) {
+    for (const schema of schemas) {
+        const type_def = await generate_typedef(schema)
+        const name = `I${_.upperFirst(schema.title)}`
+        await write_type_definition(name, type_def)
+    }
 }
-
-

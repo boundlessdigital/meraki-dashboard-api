@@ -1,7 +1,7 @@
 import fs from 'fs'
 import axios from 'axios'
 import { OpenAPIV2 } from 'openapi-types'
-import { MERAKI_API_SPEC_FILE_PATH, MERAKI_API_SPEC_URL, MERAKI_LIB_DIRECTORY } from '../../settings.js'
+import { MERAKI_API_SPEC_FILE_PATH, MERAKI_API_SPEC_URL } from '../../settings.js'
 
 
 export async function fetch_latest_meraki_spec() {

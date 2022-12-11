@@ -3,7 +3,8 @@ import { save_spec } from './spec.js'
 import { debug_log, BuildException } from '../utils.js'
 import { OpenAPIV2 } from 'openapi-types'
 import { mkdir } from 'node:fs/promises'
-import { create_schema, IOperationDefinition } from './schema.js'
+import { create_schemas, IOperationDefinition } from './schema.js'
+import { create_types } from './types.js'
 
 
 import {
@@ -25,27 +26,18 @@ async function initialize() {
     return spec
 }
 
-async function build_library_asset(definition: IOperationDefinition) {
-    await create_schema(definition)
-    // const type_def = await generate_typedef(schema, name)
-
-    // await write_type_definition(schema.title, type_def)
-}
-
-
 function build_endpoints_list(spec: OpenAPIV2.Document) {
     const endpoint_list: IOperationDefinition[] = []
 
     for (const [path, endpoint] of Object.entries(spec.paths)) {
         for (const [method, definition] of Object.entries(endpoint)) {
-            // @ts-ignore
-            const operationDefinition: IOperationDefinition = {
+            const operationDefinition: Pick<IOperationDefinition, 'path' | 'method'> = {
                 path,
                 method: method as HttpMethod,
                 ...(definition as object)
             }
 
-            endpoint_list.push(operationDefinition)
+            endpoint_list.push(operationDefinition as IOperationDefinition)
         }
     }
 
@@ -58,14 +50,15 @@ async function main()  {
         const spec = await initialize()
         const endpoint_list: IOperationDefinition[] = build_endpoints_list(spec)
 
-        for (const endpoint of endpoint_list) {
-            await build_library_asset(endpoint)
-        }
+        const schemas = await create_schemas(endpoint_list)
+        await create_types(schemas)
     } catch (error) {
         if (error instanceof BuildException) {
             console.log(error.message)
             debug_log(JSON.stringify(error.payload))
         }
+        console.log('Had an error')
+        console.log(error)
     }
 }
 
