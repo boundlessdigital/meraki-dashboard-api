@@ -1,44 +1,63 @@
-import axios, { Axios } from 'axios'
+import axios, { Axios, AxiosResponse } from 'axios'
 import { DEFAULT_MERAKI_TIMEOUT } from './settings.js'
 import { IClientParams } from '../types/global'
 
-export class Client {
+export interface IClientOperation {
+    [method: string]: () => Promise<AxiosResponse<any, any>>
+}
+
+export interface IClientProperties {
     api_key: string
     host: string
     base_path: string
     client: Axios
+}
 
-    constructor(config: IClientParams) {
-        this.api_key = config.api_key
-        this.host = config.base_url || 'https://api.meraki.com'
-        this.base_path = config.base_path || '/api/v1'
-        this.client = axios.create({
-            baseURL: this.host + this.base_path,
-            timeout: config.timeout || DEFAULT_MERAKI_TIMEOUT,
-            headers: {
-                'User-Agent':
-                    config.user_agent || 'JavascriptSDK BoundlessDigital',
-                'X-Cisco-Meraki-API-Key': this.api_key
-            }
-        })
+export type IClient = IClientProperties & IClientOperation
 
-        // this.client.interceptors.response.use(null, retry(this.client))
-    }
+export function Client(this: IClient, config: IClientParams) {
+    this.api_key = config.api_key
+    this.host = config.base_url || 'https://api.meraki.com'
+    this.base_path = config.base_path || '/api/v1'
+    this.client = axios.create({
+        baseURL: this.host + this.base_path,
+        timeout: config.timeout || DEFAULT_MERAKI_TIMEOUT,
+        headers: {
+            'User-Agent': config.user_agent || 'JavascriptSDK BoundlessDigital',
+            'X-Cisco-Meraki-API-Key': this.api_key
+        }
+    })
+}
 
-    getOrganizations() {
+interface IOperation {
+    operation_id: string
+    method: string
+    path: string
+}
+
+function add_operation_to_client(operation: IOperation) {
+    Client.prototype[operation.operation_id] = function () {
         return this.client.request({
-            url: '/organizations',
-            method: 'get'
+            url: operation.path,
+            method: operation.method
         })
     }
 }
 
-// function add_meraki_methods() {
-//     // const method = 'get_organizations'
-//     Client.prototype.get_organizations = function () {
-//         console.log(arguments.callee.caller.name)
-//     }
-// }
+const operations = [
+    {
+        operation_id: 'getOrganizations',
+        method: 'get',
+        path: '/organizations'
+    },
+    {
+        operation_id: 'getAdministeredIdentitiesMe',
+        method: 'get',
+        path: '/administered/identities/me'
+    }
+]
+
+operations.forEach((operation) => add_operation_to_client(operation))
 
 // export const build_client = () => {
 //     let operations: OperationList = {}
