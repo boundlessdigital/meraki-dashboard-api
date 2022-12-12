@@ -2,7 +2,6 @@ import toJsonSchema from 'to-json-schema'
 import { compile, JSONSchema } from 'json-schema-to-typescript'
 import { write_file } from '../utils.js'
 import { MERAKI_API_TYPES_DIR } from '../../settings.js'
-import { IOperationDefinition} from './schema.js'
 import _ from 'lodash'
 
 
