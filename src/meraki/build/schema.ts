@@ -71,6 +71,7 @@ async function generate_request_body_schema(definition: IOperationDefinition) {
         delete body_parameter.schema.example
         const schema = toJsonSchema(schema_def)
         schema.title = `${definition.operationId}RequestBody`
+        schema['$schema'] = 'http://json-schema.org/draft-04/schema#'
         return schema
     
     }
@@ -128,7 +129,7 @@ export async function create_schemas(endpoint_list: IOperationDefinition[]) {
         const response_schema = await generate_response_schema(endpoint) as toJsonSchema.JSONSchema3or4 
         await write_schema_file(request_body_schema)
         await write_schema_file(response_schema)
-        
+
         if (request_body_schema) {
             schemas.push(request_body_schema)
         }
