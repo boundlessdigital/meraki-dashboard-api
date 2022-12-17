@@ -2,7 +2,11 @@
     "$schema": "https://json.schemastore.org/package",
     "name": "@boundlessdigital/meraki-dashboard-api",
     "type": "module",
-    "types": "./lib/meraki/index.d.ts",
+    "main": "lib/index.js",
+    "types": "lib/index.d.ts",
+    "files": [
+        "/lib"
+    ],
     "scripts": {
         "build": "tsc",
         "clean": "rm -rf lib",
