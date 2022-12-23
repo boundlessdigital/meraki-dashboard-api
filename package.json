@@ -8,19 +8,22 @@
         "/lib"
     ],
     "scripts": {
-        "build": "tsc",
+        "build": "npm run generate-api && tsc",
         "clean": "rm -rf lib",
         "build:lib": "",
         "build:types": "rm -rf ./lib/types/*; mkdir -p lib/types; cp -r types/* lib/types/; echo 'Done'",
         "watch": "tsc --watch",
         "prettier-format": "prettier 'src/**/*.ts' --write",
-        "test": "jest"
+        "test": "jest",
+        "generate-api": "rm -rf ./src/meraki/api; openapi-generator-cli generate -i https://api.meraki.com/api/v1/openapiSpec -g typescript-axios -o ./src/meraki/api",
+        "postinstall": "npm run generate-api"
     },
     "exports": {
         ".": "./lib/index.js"
     },
     "devDependencies": {
         "@jest/globals": "^29.3.1",
+        "@openapitools/openapi-generator-cli": "^2.5.2",
         "@types/jest": "^29.2.4",
         "@types/lodash": "^4.14.191",
         "@types/node": "^18.11.12",

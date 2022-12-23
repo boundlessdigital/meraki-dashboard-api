@@ -25,7 +25,6 @@
         "declarationDir": "./lib",
         "declarationMap": true,
         "esModuleInterop": true,
-        "exactOptionalPropertyTypes": true,
         "experimentalDecorators": true,
         "forceConsistentCasingInFileNames": true,
         "inlineSourceMap": true,
@@ -35,13 +34,13 @@
         "moduleResolution": "node",
         "noErrorTruncation": true,
         "noFallthroughCasesInSwitch": true,
-        "noImplicitOverride": true,
+        "noImplicitOverride": false,
         "noImplicitReturns": true,
         "noUncheckedIndexedAccess": true,
         "noUnusedLocals": false,
         "noUnusedParameters": true,
         "removeComments": true,
         "resolveJsonModule": true,
-        "strict": true,
+        "strictNullChecks": false
     }
 }

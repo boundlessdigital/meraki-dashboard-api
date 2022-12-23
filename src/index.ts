@@ -1,3 +1,3 @@
-import { Meraki } from './meraki/index.js'
+import * as Meraki from './meraki/api'
 
 export { Meraki }
