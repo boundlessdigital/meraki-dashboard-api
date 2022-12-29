@@ -1,3 +1,1 @@
-import * as Meraki from './meraki/api'
-
-export { Meraki }
+export * from './meraki/api'

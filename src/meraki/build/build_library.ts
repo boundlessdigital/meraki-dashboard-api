@@ -84,4 +84,4 @@ async function main()  {
     }
 }
 
-await main()
+// await main()

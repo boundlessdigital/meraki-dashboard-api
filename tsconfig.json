@@ -12,14 +12,13 @@
     "compilerOptions": {
         "outDir": "lib",
         "lib": [
-            "ES2022",
-            "DOM"
+            "ES5",
+            "ES2021.String"
         ],
         "typeRoots": [
-            "node_modules/@types",
-            // "types"
+            "node_modules/@types"
         ],
-        "target": "ES2019",
+        "target": "ES5",
         "allowUnreachableCode": false,
         "declaration": true,
         "declarationDir": "./lib",
@@ -30,7 +29,7 @@
         "inlineSourceMap": true,
         "inlineSources": true,
         "jsx": "react-jsx",
-        "module": "es2022",
+        "module": "CommonJS",
         "moduleResolution": "node",
         "noErrorTruncation": true,
         "noFallthroughCasesInSwitch": true,
