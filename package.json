@@ -1,7 +1,7 @@
 {
     "$schema": "https://json.schemastore.org/package",
     "name": "@boundlessdigital/meraki-dashboard-api",
-    "version": "0.1.2",
+    "version": "0.1.0",
     "main": "lib/index.js",
     "types": "lib/index.d.ts",
     "files": [
@@ -15,7 +15,8 @@
         "watch": "tsc --watch",
         "prettier-format": "prettier 'src/**/*.ts' --write",
         "test": "jest",
-        "generate-api": "rm -rf ./src/meraki/api; openapi-generator-cli generate -i https://api.meraki.com/api/v1/openapiSpec -g typescript-axios -o ./src/meraki/api"
+        "generate-api": "rm -rf ./src/meraki/api; openapi-generator-cli generate -i https://api.meraki.com/api/v1/openapiSpec -g typescript-axios -o ./src/meraki/api",
+        "republish": "npm run build && npm publish --access=public"
     },
     "exports": {
         ".": "./lib/index.js"
