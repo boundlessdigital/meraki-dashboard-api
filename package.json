@@ -16,7 +16,7 @@
         "prettier-format": "prettier 'src/**/*.ts' --write",
         "test": "jest",
         "generate-api": "rm -rf ./src/meraki/api; openapi-generator-cli generate -i https://api.meraki.com/api/v1/openapiSpec -g typescript-axios -o ./src/meraki/api",
-        "republish": "npm run build && npm publish --access=public"
+        "republish": "npm run build && npm version patch && npm publish --access=public"
     },
     "exports": {
         ".": "./lib/index.js"
